@@ -30,5 +30,6 @@ public class MemberRepositoryTest {
         // then
         assertThat(findMember.getId()).isEqualTo(member.getId());
         assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
+        assertThat(findMember).isEqualTo(member); // 같은 트랜잭션(같은 영속성 컨텍스트) 안에서 저장과 조회의 객체는 같다.
     }
 }
