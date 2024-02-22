@@ -26,6 +26,7 @@ public class OrderService {
         /*
          * Order에 cascade = CascadeType.ALL을 넣어놨기 때문에 마지막에 주문 저장만 해도
          * OrderItem과 Delivery가 자동으로 persist된다.
+         * 같은 라이프사이클일 경우에만 Cascade를 쓰는 것이 좋다.
          * 주의) Cascade는 추가적인 공부를 통해 필요할 때만 쓰도록 하자!
          */
 
@@ -45,6 +46,7 @@ public class OrderService {
 
         // 주문 저장
         orderRepository.save(order);
+
         return order.getId();
     }
 
