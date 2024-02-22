@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -55,11 +56,25 @@ public class Order {
         Order order = new Order();
         order.setMember(member);
         order.setDelivery(delivery);
-        for (OrderItem orderItem : orderItems) {
-            order.addOrderItem(orderItem);
-        }
+        Arrays.stream(orderItems).forEach(order::addOrderItem);
         order.setStatus(OrderStatus.ORDER);
         order.setOrderDate(LocalDateTime.now());
         return order;
+    }
+
+    /*
+     * 비즈니스 로직
+     * 1. cancel(): 주문 취소
+     * 2. getTotalPrice(): 전체 주문 가격 조회
+     */
+
+    public void cancel() {
+        assert delivery.getStatus() != DeliveryStatus.COMP : "이미 배송완료된 상품이므로 취소가 불가능합니다.";
+        this.setStatus(OrderStatus.CANCLE);
+        this.orderItems.forEach(OrderItem::cancel);
+    }
+
+    public int getTotalPrice() {
+        return this.orderItems.stream().mapToInt(OrderItem::getTotalPrice).sum();
     }
 }
