@@ -3,7 +3,9 @@ package jpabook.jpashop.domain.Item;
 import jakarta.persistence.*;
 import jpabook.jpashop.domain.Category;
 import jpabook.jpashop.exception.NotEnoughException;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -13,6 +15,8 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE) // 싱글 테이블 전략 사용
 @DiscriminatorColumn(name = "dtype")
 @Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public abstract class Item {
     @Id @GeneratedValue
     @Column(name = "item_id")
