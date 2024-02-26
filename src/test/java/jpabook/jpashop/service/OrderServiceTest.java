@@ -31,26 +31,30 @@ public class OrderServiceTest {
     public void 상품주문(){
         // given
         Member member = createMember();
-        Book book = createBook("book1", 10000, 10);
+        Book item = Book.createBook("book1", 10000, 10, "park", "111");
+
+        em.persist(item);
 
         int orderCount = 2;
 
         // when
-        Long orderId = orderService.order(member.getId(), book.getId(), orderCount);
+        Long orderId = orderService.order(member.getId(), item.getId(), orderCount);
 
         // then
         Order order = orderRepository.findOne(orderId);
         assertEquals(OrderStatus.ORDER, order.getStatus(), "상품 주문시 상태는 ORDER");
         assertEquals(1, order.getOrderItems().size(), "주문한 상품 종류 수가 정확해야 한다");
         assertEquals(10000 * orderCount, order.getTotalPrice(), "주문 가격은 가격 * 수량이다.");
-        assertEquals(8, book.getStockQuantity(), "주문 수량만큼 상품의 재고가 줄어들어야 한다.");
+        assertEquals(8, item.getStockQuantity(), "주문 수량만큼 상품의 재고가 줄어들어야 한다.");
     }
 
     @Test(expected = NotEnoughException.class)
     public void 상품주문_재고수량초과() {
         // given
         Member member = createMember();
-        Book item = createBook("book1", 10000, 10);
+        Book item = Book.createBook("book1", 10000, 10, "park", "111");
+
+        em.persist(item);
 
         int orderCount = 11;
 
@@ -65,7 +69,7 @@ public class OrderServiceTest {
     public void 주문취소(){
         // given
         Member member = createMember();
-        Book item = createBook("book1", 10000, 10);
+        Book item = Book.createBook("book1", 10000, 10, "park", "111");
 
         int orderCount = 2;
         Long orderId = orderService.order(member.getId(), item.getId(), orderCount);
@@ -86,14 +90,5 @@ public class OrderServiceTest {
         member.setAddress(new Address("서울", "강북", "111-222"));
         em.persist(member);
         return member;
-    }
-
-    private Book createBook(String name, int price, int stockQuantity) {
-        Book book = new Book();
-        book.setName(name);
-        book.setPrice(price);
-        book.setStockQuantity(stockQuantity);
-        em.persist(book);
-        return book;
     }
 }

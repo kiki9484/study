@@ -46,4 +46,13 @@ public class MemberService {
     public Member findOne(Long memberId) {
         return memberRepository.findOne(memberId);
     }
+
+    /* 1. 변경 감지 방법
+     * command와 query가 같이 있는 것은 좋지 않으므로 Member를 반환하지 않고, void나 id정도만 반환하는 것이 좋다.
+     */
+    @Transactional
+    public void update(Long id, String name) {
+        Member member = memberRepository.findOne(id);
+        member.setName(name);
+    }
 }
