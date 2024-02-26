@@ -4,9 +4,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.MemberService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController // @RestController = @Controller + @ResponseBody
 @RequiredArgsConstructor
@@ -37,6 +41,29 @@ public class MemberApiController {
         Member findMember = memberService.findOne(id);
         return new UpdateMemberResponse(findMember.getId(), findMember.getName());
     }
+
+    /* 비추 -
+     * 1. 배열[]로 넘기기 때문에 확장성이 좋지 않다.
+     * 2. Entity가 노출되므로 좋지 않다
+     */
+    @GetMapping("/api/v1/members")
+    public List<Member> membersV1() {
+        return memberService.findMembers();
+    }
+
+    @GetMapping("/api/v2/members")
+    public Result membersV2() {
+        List<Member> findMembers = memberService.findMembers();
+        List<MemberDto> collect = findMembers.stream()
+                .map(MemberApiController::apply)
+                .toList();
+        return new Result(collect);
+    }
+
+    private static MemberDto apply(Member m) {
+        return new MemberDto(m.getName());
+    }
+
     @Data
     static class CreateMemberRequest {
         @NotEmpty
@@ -53,15 +80,28 @@ public class MemberApiController {
     }
 
     @Data
-    static class updateMemberRequest{
+    static class updateMemberRequest {
         private String name;
     }
 
     @Data
     @RequiredArgsConstructor
-    static class UpdateMemberResponse{
+    static class UpdateMemberResponse {
         private final Long id;
         private final String name;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Result<T> {
+        private T data;
+    }
+
+    // name만 json으로 반환하는 DTO
+    @Data
+    @AllArgsConstructor
+    static class MemberDto {
+        private String name;
     }
 }
 
