@@ -57,7 +57,7 @@ public class MemberApiController {
         List<MemberDto> collect = findMembers.stream()
                 .map(MemberApiController::apply)
                 .toList();
-        return new Result(collect);
+        return new Result(collect.size(), collect);
     }
 
     private static MemberDto apply(Member m) {
@@ -94,10 +94,11 @@ public class MemberApiController {
     @Data
     @AllArgsConstructor
     static class Result<T> {
+        private int count;
         private T data;
     }
 
-    // name만 json으로 반환하는 DTO
+    // 전체 Member의 개수와 name만 json으로 반환하는 DTO
     @Data
     @AllArgsConstructor
     static class MemberDto {
