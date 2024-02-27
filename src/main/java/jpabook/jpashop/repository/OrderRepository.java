@@ -61,9 +61,20 @@ public class OrderRepository {
                         " join fetch o.delivery d", Order.class).getResultList();
     }
 
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
+        return em.createQuery(
+                        "select o from Order o" +
+                                " join fetch o.member m" +
+                                " join fetch o.delivery d", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     /* fetch join 사용
-    * distinct를 사용하면 Order 객체의 id가 똑같기 때문에 중복을 제거하고 하나만 반환해준다.
-    * */
+     * distinct를 사용하면 Order 객체의 id가 똑같기 때문에 중복을 제거하고 하나만 반환해준다.
+     * 단점: 페이징이 불가능하다. 메모리에서 페이징 처리를 하기 때문에 out of memory 발생 가능성이 매우 높다.
+     * */
     public List<Order> findAllWithItem() {
         return em.createQuery(
                 "select distinct o from Order o" +
