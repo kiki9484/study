@@ -49,4 +49,31 @@ public class OrderRepository {
         TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000); //최대 1000건
         return query.getResultList();
     }
+
+    /**
+     * fetch join 사용
+     * 필요한 것만 fetch join을 사용해서 객체그래프로 묶어서 가져오면 성능 문제가 해결된다.
+     */
+    public List<Order> findAllWithMemberDelivery() {
+        return em.createQuery(
+                "select o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d", Order.class).getResultList();
+    }
+
+    /**
+     * api/v4/simple-orders에서 사용.
+     * 위의 findAllWithMemberDelivery에 비해 쿼리의 성능이 좋아지지만 경직적인 편이 있음
+     * 성능 차이가 유의미하게 좋아지지 않으므로 findAllWithMemberDelivery를 사용하는 것이 좋음
+     * @return
+     */
+    public List<OrderSimpleQueryDto> findOrderDtos() {
+        return em.createQuery(
+                "select new jpabook.jpashop.repository.OrderSimpleQueryDto(o.id, m.name, o.orderDate, o.status, d.address)" +
+                        " from Order o" +
+                        " join o.member m" +
+                        " join o.delivery d", OrderSimpleQueryDto.class).getResultList();
+    }
+
+
 }
