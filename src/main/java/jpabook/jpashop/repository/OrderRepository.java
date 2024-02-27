@@ -60,4 +60,16 @@ public class OrderRepository {
                         " join fetch o.member m" +
                         " join fetch o.delivery d", Order.class).getResultList();
     }
+
+    /* fetch join 사용
+    * distinct를 사용하면 Order 객체의 id가 똑같기 때문에 중복을 제거하고 하나만 반환해준다.
+    * */
+    public List<Order> findAllWithItem() {
+        return em.createQuery(
+                "select distinct o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d" +
+                        " join fetch o.orderItems oi" +
+                        " join fetch oi.item i", Order.class).getResultList();
+    }
 }
