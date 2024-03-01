@@ -46,6 +46,7 @@ public class OrderApiController {
     /**
      * XtoOne 관계는 패치 조인을 해도 페이징이 가능하다.
      * default_batch_fetch_size: 100을 하면 인쿼리로 한 번에 100개를 가져온다.
+     * 이 방식 선호!
      */
     @GetMapping("/api/v3.1/orders")
     public List<OrderDto> ordersV3_page(
