@@ -20,6 +20,9 @@ public class LogInterceptor implements HandlerInterceptor {
         String requestURI = request.getRequestURI();
         String uuid = UUID.randomUUID().toString();
 
+        // 스프링 인터셉터는 호출 시점이 완전히 분리되어 있다.
+        // preHandle에서 지정한 값을 postHandle, afterCompletion에서 함께 사용하려면 어딘가에 담아두어야 한다.
+        // 따라서 request에 담아두었다.
         request.setAttribute(LOG_ID, uuid);
 
         //@RequestMapping: HandlerMethod
@@ -40,6 +43,7 @@ public class LogInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         String requestURI = request.getRequestURI();
+        // preHandle에서 담아두었던 값 사용하기
         String logId = (String) request.getAttribute(LOG_ID);
         log.info("RESPONSE [{}][{}][{}]", logId, requestURI, handler);
         if (ex != null) {
