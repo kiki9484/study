@@ -17,17 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class ApiExceptionController {
 
     @GetMapping("/api/members/{id}")
-    public MemberDto getMember(@PathVariable("id") String id) {
+    public MemberDto getMember(@PathVariable String id) {
 
-        if (id.equals("ex")) {
-            throw new RuntimeException("잘못된 사용자");
-        }
-        if (id.equals("bad")) {
-            throw new IllegalArgumentException("잘못된 입력 값");
-        }
-        if (id.equals("user-ex")) {
-            throw new UserException("사용자 오류");
-        }
+        if (id.equals("ex")) throw new RuntimeException("잘못된 사용자");
+        if (id.equals("bad")) throw new IllegalArgumentException("잘못된 입력 값");
+        if (id.equals("user-ex")) throw new UserException("사용자 오류");
 
         return new MemberDto(id, "hello " + id);
     }
@@ -54,5 +48,4 @@ public class ApiExceptionController {
         private String memberId;
         private String name;
     }
-
 }
