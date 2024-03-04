@@ -1,4 +1,4 @@
-## 예외 처리와 오류 페이지
+## 오류 페이지 처리
 
 ### Exception
 
@@ -11,6 +11,7 @@
 <br>
 
 #### 웹 애플리케이션
+
 웹 애플리케이션은 사용자 요청별로 별도의 쓰레드가 할당되고, 서블릿 컨테이너 안에서 실행된다.
 
 애플리케이션에서 발생한 예외를 try ~ catch로 예외를 잡아서 처리하면 아무런 문제가 없다.
@@ -111,27 +112,18 @@ public class WebConfig implements WebMvcConfigurer {
 2. 예외 종류에 따라서 ErrorPage를 추가한다.
 3. 예외 처리용 컨트롤러 ErrorPageController를 만든다.
 
-
 <br>
 
 ### 스프링 부트가 기본으로 에러 페이지 설정을 제공해준다.
 
-`ErrorPage`를 자동으로 등록한다. `/error`라는 경로로 기본 오류 페이지를 설정한다.
++ `ErrorPage`를 자동으로 등록한다. `/error`라는 경로로 기본 오류 페이지를 설정한다.
   + new ErrorPage("/error") : 상태코드와 예외를 설정하지 않으면 기본 오류 페이지로 사용된다.
   + 서블릿 밖으로 예외가 발생하거나 response.sendError(...)가 호출되면 모든 오류는 `/error`를 호출한다.
 
-<br>
-
-`BasicErrorController`라는 스프링 컨트롤러를 자동 등록한다.
++ `BasicErrorController`라는 스프링 컨트롤러를 자동 등록한다.
   + `ErrorPage`에서 등록한 `/error`를 매핑해서 처리하는 컨트롤러다.
-
-<br>
-
-오류가 발생했을 때 오류 페이지로 `/error`를 기본 요청한다, 스프링 부트가 자동 등록한 `BasicErrorController`는 이 경로를 기본으로 받는다.
-
-<br>
-
-`ErrorMvcAutoConfiguration` 클래스가 오류 페이지를 자동으로 등록하는 역할을 한다.
++ 오류가 발생했을 때 오류 페이지로 `/error`를 기본 요청한다. 스프링 부트가 자동 등록한 `BasicErrorController`는 이 경로를 기본으로 받는다.
++ `ErrorMvcAutoConfiguration` 클래스가 오류 페이지를 자동으로 등록하는 역할을 한다.
 
 <br><br>
 
@@ -197,3 +189,252 @@ server.error.include-binding-errors=never : errors 포함 여부 (never, always,
 server.error.whitelabel.enabled=true : 오류 처리 화면을 못 찾을 시, 스프링 whitelabel 오류 페이지 적용
 server.error.path=/error : 오류 페이지 경로, 스프링이 자동 등록하는 서블릿 글로벌 오류 페이지 경로와 `BasicErrorController` 오류 컨트롤러 경로에 함께 사용된다.
 ```
+
+****
+
+<br><br>
+
+## API 예외 
+
+API는 각 오류 상황에 맞는 오류 응답 스펙을 정하고, JSON으로 데이터를 내려주어야 한다.
+
+오류 페이지 컨트롤러로 JSON 응답을 할 수 있도록 수정해야 한다.
+
+<br><br>
+
+### ExceptionResolver
+
+스프링 MVC는 컨트롤러(핸들러) 밖으로 예외가 던져진 경우 예외를 해결하고, 동작을 새로 정의할 수 있는 방법을 제공한다. 
+
+컨트롤러 밖으로 던져진 예외를 해결하고, 동작 방식을 변경하고 싶으면 `HandlerExceptionResolver`를 사용하면 된다.
+줄여서 `ExceptionResolver`라 한다.
+
+![ExceptionResolver 적용 전.png](src%2Fmain%2Fresources%2Fimages%2FExceptionResolver%20%EC%A0%81%EC%9A%A9%20%EC%A0%84.png)
+
+![ExceptionResolver 적용 후.png](src%2Fmain%2Fresources%2Fimages%2FExceptionResolver%20%EC%A0%81%EC%9A%A9%20%ED%9B%84.png)
++ 예외해결 시도 : ExceptionResolver가 호출되어 예외가 발생했을 때 처리할 기회가 생긴다.
++ ExceptionResolver로 예외가 해결되어도 postHandle()은 호출되지 않는다.
++ `ExceptionResolver`를 사용하면 컨트롤러에서 예외가 발생해도 `ExceptionResolver`에서 예외를 처리해버린다.
+  + 따라서 예외가 발생해도 서블릿 컨테이너까지 예외가 전달되지 않고, 스프링 MVC에서 예외 처리는 끝이 난다.
+  + 결과적으로 WAS 입장에서는 정상 처리가 된 것이다. 이렇게 예외를 이곳에서 모두 처리할 수 있다는 것이 핵심이다. 
+
+<br>
+
+### HandlerExceptionResolver 인터페이스
+
+```java
+public interface HandlerExceptionResolver{
+    ModelAndView resolveException(HTTPServletRequest req, HTTPServletResponse res, Object handler, Exception ex);
+}
+```
++ handler: 핸들러(컨트롤러) 정보
++ Exception ex : 핸들러(컨트롤러)에서 발생한 예외
+
+<br><br>
+
+### ExceptionHandlerExceptionResolver
+
+@ExceptionHandler을 처리한다.
+
+<br><br>
+
+### @ExceptionHandler 예외 처리 방법
+
+`@ExceptionHandler` 애노테이션을 선언하고, 해당 컨트롤러에서 처리하고 싶은 예외를 지정해주면 된다. 해당 컨트롤러에서 예외가 발생하면 이 메서드가 호출된다.
+
+지정한 예외 또는 그 예외의 자식 클래스는 모두 잡을 수 있다.
++ `@ExceptionHandler` 에 지정한 부모 클래스는 자식 클래스까지 처리할 수 있다.
++ `자식예외`가 발생하면 `부모 예외처리()`, `자식예외처리()` 둘 다 호출 대상이 된다.
++ 더 자세한 것이 우선권을 가지므로 `자식예외처리()`가 호출된다. 
++ `부모예외`가 호출되면 `부모예외처리()`만 호출 대상이 되므로 `부모예외처리()`가 호출된다.
+
+<br><br>
+
+### @ExceptionHandler 예시
+```java
+@Slf4j
+@RestController
+public class ApiExceptionV2Controller {
+    
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ErrorResult illegalExHandle(IllegalArgumentException e) {
+        log.error("[exceptionHandle] ex", e);
+        return new ErrorResult("BAD", e.getMessage());
+    }
+    
+    @ExceptionHandler
+    public ResponseEntity<ErrorResult> userExHandle(UserException e) {
+        log.error("[exceptionHandle] ex", e);
+        ErrorResult errorResult = new ErrorResult("USER-EX", e.getMessage());
+        return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
+    }
+    
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler
+    public ErrorResult exHandle(Exception e) {
+        log.error("[exceptionHandle] ex", e);
+        return new ErrorResult("EX", "내부 오류"); 
+    }
+    
+    @Data
+    @AllArgsConstructor
+    static class MemberDto {
+        private String memberId;
+        private String name;
+    }
+}
+```
+
+<br>
+
+#### IllegalArgumentException 처리와 실행 흐름
+
+```java
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ExceptionHandler(IllegalArgumentException.class)
+public ErrorResult illegalExHandle(IllegalArgumentException e) {
+    log.error("[exceptionHandle] ex", e);
+    return new ErrorResult("BAD", e.getMessage());
+}
+```
+
++ 컨트롤러를 호출한 결과 `IllegalArgumentException` 예외가 컨트롤러 밖으로 던져진다. 예외가 발생했으로 `ExceptionResolver`가 작동한다.
++ 가장 우선순위가 높은`ExceptionHandlerExceptionResolver`가 실행된다.
++ `ExceptionHandlerExceptionResolver`는 해당 컨트롤러에 `IllegalArgumentException`을 처리 할 수 있는 `@ExceptionHandler`가 있는지 확인한다.
++ `illegalExHandle()` 를 실행한다.
++ `@RestController` 이므로 `illegalExHandle()`에도 `@ResponseBody`가 적용된다. 따라서 HTTP 컨버터가 사용되고, 응답이 JSON으로 반환된다.
++ `@ResponseStatus(HttpStatus.BAD_REQUEST)`를 지정했으므로 HTTP 상태 코드 400으로 응답한다.
+
+
+<br>
+
+### @ExceptionHandler 추가 기능
+
+#### 1. 우선순위 : 스프링의 우선순위는 항상 자세한 것이 우선권을 가진다.
+
+```java
+@ExceptionHandler(부모예외.class) public String 부모예외처리()(부모예외 e) {}
+@ExceptionHandler(자식예외.class) public String 자식예외처리()(자식예외 e) {}
+```
++ `@ExceptionHandler`에 지정한 부모 클래스는 자식 클래스까지 처리할 수 있다. 
++ 따라서 `자식예외`가 발생하면 `부모 예외처리()`, `자식예외처리()` 둘 다 호출 대상이 된다.
++ 더 자세한 것이 우선권을 가지므로 `자식예외처리()` 가 호출된다. 
++  `부모예외` 가 호출되면 `부모예외처리()`만 호출 대상이 되므로 `부모예외처리()`가 호출된다.
+
+#### 2. 다양한 예외 : 다양한 예외를 한번에 처리할 수 있다.
+
+```java
+@ExceptionHandler({AException.class, BException.class})
+public String ex(Exception e) {
+    log.info("exception e", e);
+}
+```
+
+<br>
+
+#### 3. 예외 생략 : @ExceptionHandler`에 예외를 생략할 수 있다. 생략하면 메서드 파라미터의 예외가 지정된다.
+```java
+@ExceptionHandler
+public ResponseEntity<ErrorResult> userExHandle(UserException e) {}
+```
+
+<br>
+
+#### 4. 파리미터와 응답 : `@ExceptionHandler`에는 마치 스프링의 컨트롤러의 파라미터 응답처럼 다양한 파라미터와 응답을 지정할 수 있다.
+
+https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-exceptionhandler-args
+
+<br><br>
+
+### API 예외 처리 - @ControllerAdvice
+`@ExceptionHandler` 를 사용해서 예외를 깔끔하게 처리할 수 있게 되었지만, 정상 코드와 예외 처리 코드가 하나의
+컨트롤러에 섞여 있다. 
+
+`@ControllerAdvice` 또는 `@RestControllerAdvice` 를 사용하면 둘을 분리할 수 있다.
+
+<br>
+
+#### ExControllerAdvice
+
+```java
+@Slf4j
+@RestControllerAdvice
+public class ExControllerAdvice {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ErrorResult illegalExHandle(IllegalArgumentException e) {
+        log.error("[exceptionHandle] ex", e);
+        return new ErrorResult("BAD", e.getMessage());
+    }
+    
+    @ExceptionHandler
+    public ResponseEntity<ErrorResult> userExHandle(UserException e) {
+        log.error("[exceptionHandle] ex", e);
+        ErrorResult errorResult = new ErrorResult("USER-EX", e.getMessage());
+        return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
+    }
+    
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler
+    public ErrorResult exHandle(Exception e) {
+        log.error("[exceptionHandle] ex", e);
+        return new ErrorResult("EX", "내부 오류"); 
+    }
+}
+```
+
+<br>
+
+#### ApiExceptionV2Controller 코드에 있는 @ExceptionHandler 모두 제거
+
+```java
+@Slf4j
+@RestController
+public class ApiExceptionV2Controller {
+    @GetMapping("/api2/members/{id}")
+    public MemberDto getMember(@PathVariable("id") String id) {
+        if (id.equals("ex")) throw new RuntimeException("잘못된 사용자");
+        if (id.equals("bad")) throw new IllegalArgumentException("잘못된 입력 값"); 
+        if (id.equals("user-ex")) throw new UserException("사용자 오류");
+        return new MemberDto(id, "hello " + id);
+    }
+    
+    @Data
+    @AllArgsConstructor
+    static class MemberDto {
+        private String memberId;
+        private String name;
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+****
+
+<br><br>
+
+## 추가 자료
+
+#### `HandlerExceptionResolverComposite` 에 다음 순서로 등록한다.
+1. `ExceptionHandlerExceptionResolver`
+2. `ResponseStatusExceptionResolver`
+3. `DefaultHandlerExceptionResolver`(우선 순위가 가장 낮다)
+
++ `ExceptionHandlerExceptionResolver` : `@ExceptionHandler`을 처리한다.
++ `ResponseStatusExceptionResolver` : HTTP 상태 코드를 지정해준다.
++ `DefaultHandlerExceptionResolver` : 스프링 내부 기본 예외를 처리한다.
+
+
+
+
+
+
+
