@@ -1,12 +1,14 @@
 package sample.cafekiosk.api.service.product.response;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import sample.cafekiosk.domain.product.Product;
 import sample.cafekiosk.domain.product.ProductSellingStatus;
 import sample.cafekiosk.domain.product.ProductType;
 
 @Getter
+@EqualsAndHashCode
 public class ProductResponse {
     private Long id;
     private String productNumber;
