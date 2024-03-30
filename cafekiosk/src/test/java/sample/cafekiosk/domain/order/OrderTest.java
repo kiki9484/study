@@ -23,7 +23,10 @@ class OrderTest {
     void init(){
         // given
         LocalDateTime registeredDateTime = LocalDateTime.now();
-        List<Product> products = createProducts();
+        List<Product> products = List.of(
+                createProduct("001", 1000),
+                createProduct("002", 2000)
+        );
 
         // when
         Order order = Order.createOrder(products, registeredDateTime);
@@ -34,10 +37,13 @@ class OrderTest {
 
     @DisplayName("주문 생성 시 상품 리스트에서 주문의 총 금액을 계산한다.")
     @Test
-    void calculateTotalPrcie(){
+    void calculateTotalPrice(){
         // given
         LocalDateTime registeredDateTime = LocalDateTime.now();
-        List<Product> products = createProducts();
+        List<Product> products = List.of(
+                createProduct("001", 1000),
+                createProduct("002", 2000)
+        );
 
         // when
         Order order = Order.createOrder(products, registeredDateTime);
@@ -51,7 +57,10 @@ class OrderTest {
     void registeredDateTime(){
         // given
         LocalDateTime registeredDateTime = LocalDateTime.now();
-        List<Product> products = createProducts();
+        List<Product> products = List.of(
+                createProduct("001", 1000),
+                createProduct("002", 2000)
+        );
 
         // when
         Order order = Order.createOrder(products, registeredDateTime);
@@ -60,18 +69,12 @@ class OrderTest {
         assertThat(order.getRegisteredDateTime()).isEqualTo(registeredDateTime);
     }
 
-    private List<Product> createProducts() {
-        return List.of(
-                createProduct("001", HANDMADE, SELLING, "이름1", 1000),
-                createProduct("002", HANDMADE, SELLING, "이름2", 2000));
-    }
-
-    private Product createProduct(String productNumber, ProductType type, ProductSellingStatus sellingStatus, String name, int price){
+    private Product createProduct(String productNumber, int price) {
         return Product.builder()
+                .type(HANDMADE)
                 .productNumber(productNumber)
-                .type(type)
-                .sellingStatus(sellingStatus)
-                .name(name)
+                .sellingStatus(SELLING)
+                .name("메뉴 이름")
                 .price(price)
                 .build();
     }
