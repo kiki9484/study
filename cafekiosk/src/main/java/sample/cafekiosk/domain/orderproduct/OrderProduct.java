@@ -14,8 +14,7 @@ import sample.cafekiosk.domain.product.Product;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class OrderProduct extends BaseEntity {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
