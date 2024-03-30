@@ -12,18 +12,16 @@ import sample.cafekiosk.domain.product.Product;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static sample.cafekiosk.domain.order.OrderStatus.INIT;
 
-@Getter
 @Entity
+@Table(name = "orders") // 테이블 명으로 "order"가 불가능하다. "orders"로 바꿔준다.
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "orders")
+@Getter
 public class Order extends BaseEntity {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     private Long id;
 
     @Enumerated(EnumType.STRING)

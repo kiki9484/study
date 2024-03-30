@@ -26,6 +26,7 @@ public class Product extends BaseEntity {
 
     private int price;
 
+    // id를 제외한 필드로 빌더를 만들어준다.
     @Builder
     private Product(String productNumber, ProductType type, ProductSellingStatus sellingStatus, String name, int price) {
         this.productNumber = productNumber;
@@ -33,15 +34,5 @@ public class Product extends BaseEntity {
         this.sellingStatus = sellingStatus;
         this.name = name;
         this.price = price;
-    }
-
-    public static Product createProduct(String productNumber, ProductType type, ProductSellingStatus sellingStatus, String name, int price){
-        return Product.builder()
-                .productNumber(productNumber)
-                .type(type)
-                .sellingStatus(sellingStatus)
-                .name(name)
-                .price(price)
-                .build();
     }
 }
