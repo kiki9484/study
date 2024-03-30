@@ -11,9 +11,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
+
 @Getter
 @EqualsAndHashCode
-@ToString
 public class OrderResponse{
     private final Long id;
     private final int totalPrice;
@@ -41,6 +42,6 @@ public class OrderResponse{
     private static List<ProductResponse> getProductResponses(Order order) {
         return order.getOrderProducts().stream()
                 .map(orderProduct -> ProductResponse.of(orderProduct.getProduct()))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 }
