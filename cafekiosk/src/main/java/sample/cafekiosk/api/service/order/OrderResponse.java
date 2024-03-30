@@ -26,6 +26,7 @@ public class OrderResponse{
         this.totalPrice = totalPrice;
         this.registeredDateTime = registeredDateTime;
         this.products = products;
+
     }
 
     public static OrderResponse of(Order order){

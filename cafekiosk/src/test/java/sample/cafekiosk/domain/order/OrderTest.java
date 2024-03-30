@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import sample.cafekiosk.domain.product.Product;
+import sample.cafekiosk.domain.product.ProductSellingStatus;
 import sample.cafekiosk.domain.product.ProductType;
 
 import java.time.LocalDateTime;
@@ -61,7 +62,17 @@ class OrderTest {
 
     private List<Product> createProducts() {
         return List.of(
-                Product.createProduct("001", HANDMADE, SELLING, "이름1", 1000),
-                Product.createProduct("002", HANDMADE, SELLING, "이름2", 2000));
+                createProduct("001", HANDMADE, SELLING, "이름1", 1000),
+                createProduct("002", HANDMADE, SELLING, "이름2", 2000));
+    }
+
+    private Product createProduct(String productNumber, ProductType type, ProductSellingStatus sellingStatus, String name, int price){
+        return Product.builder()
+                .productNumber(productNumber)
+                .type(type)
+                .sellingStatus(sellingStatus)
+                .name(name)
+                .price(price)
+                .build();
     }
 }
