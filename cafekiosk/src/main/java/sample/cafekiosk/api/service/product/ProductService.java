@@ -18,7 +18,7 @@ import static sample.cafekiosk.domain.product.ProductSellingStatus.*;
 import static sample.cafekiosk.domain.product.ProductType.HANDMADE;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
@@ -31,6 +31,7 @@ public class ProductService {
                 .collect(toList());
     }
 
+    @Transactional
     public ProductResponse createProduct(ProductCreateRequest request) {
         // productNumber 부여하기 -> DB에서 마지막 저장된 Product의 상품 번호를 읽어와서 +1
         String nextProductNumber = createNextProductNumber();
