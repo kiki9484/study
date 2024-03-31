@@ -20,6 +20,7 @@ import sample.cafekiosk.domain.product.ProductType;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static sample.cafekiosk.domain.product.ProductSellingStatus.*;
 import static sample.cafekiosk.domain.product.ProductType.*;
 
@@ -50,6 +51,99 @@ class ProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("신규 상품을 등록할 때 상품 타입은 필수값이다.")
+    @Test
+    void createProductWithoutType() throws Exception {
+        // given
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .sellingStatus(SELLING)
+                .name("아메리카노")
+                .price(4000)
+                .build();
+
+        // when  // then
+        mockMvc.perform(post("/api/v1/products/new")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("상품 타입은 필수입니다."))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @DisplayName("신규 상품을 등록할 때 상품 판매상태는 필수값이다.")
+    @Test
+    void createProductWithoutSellingStatus() throws Exception {
+        // given
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .type(HANDMADE)
+                .name("아메리카노")
+                .price(4000)
+                .build();
+
+        // when  // then
+        mockMvc.perform(post("/api/v1/products/new")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("상품 판매상태는 필수입니다."))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @DisplayName("신규 상품을 등록할 때 상품 이름은 필수값이다.")
+    @Test
+    void createProductWithoutName() throws Exception {
+        // given
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .sellingStatus(SELLING)
+                .type(HANDMADE)
+                .price(4000)
+                .build();
+
+        // when  // then
+        mockMvc.perform(post("/api/v1/products/new")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("상품 이름은 필수입니다."))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @DisplayName("신규 상품을 등록할 때 상품 가격은 양수이다.")
+    @Test
+    void createProductWithoutPrice() throws Exception {
+        // given
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .sellingStatus(SELLING)
+                .type(HANDMADE)
+                .name("아메리카노")
+                .price(0)
+                .build();
+
+        // when  // then
+        mockMvc.perform(post("/api/v1/products/new")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("상품 가격은 양수여야 합니다."))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 }
