@@ -9,15 +9,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import sample.cafekiosk.api.controller.product.dto.request.ProductCreateRequest;
 import sample.cafekiosk.api.service.product.ProductService;
-import sample.cafekiosk.domain.product.ProductSellingStatus;
-import sample.cafekiosk.domain.product.ProductType;
+import sample.cafekiosk.api.service.product.response.ProductResponse;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -125,7 +124,7 @@ class ProductControllerTest {
 
     @DisplayName("신규 상품을 등록할 때 상품 가격은 양수이다.")
     @Test
-    void createProductWithoutPrice() throws Exception {
+    void createProductWithoutZeroPrice() throws Exception {
         // given
         ProductCreateRequest request = ProductCreateRequest.builder()
                 .sellingStatus(SELLING)
@@ -145,5 +144,25 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("상품 가격은 양수여야 합니다."))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @DisplayName("판매 상품을 조회한다.")
+    @Test
+    void getSellingProducts() throws Exception {
+        // service 계층에서 조회에 대한 값 검증은 이미 끝났기 때문에 controller 계층에서는 List형태로 잘 오는지만 확인하면 된다.
+        // given
+        List<ProductResponse> result = List.of();
+        when(productService.getSellingProducts()).thenReturn(result);
+
+        // when  // then
+        mockMvc.perform(
+                    get("/api/v1/products/selling")
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
     }
 }
