@@ -173,7 +173,6 @@ class OrderServiceTest {
                 .hasMessage("재고가 부족한 상품이 있습니다.");
     }
 
-
     // 테스트에 필요한 정보만 받는다.
     private Product createProduct(String productNumber, ProductType type, int price){
         return Product.builder()
