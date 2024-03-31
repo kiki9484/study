@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aspectj.lang.annotation.Pointcut;
+import sample.cafekiosk.api.service.order.request.OrderCreateServiceRequest;
+import sample.cafekiosk.api.service.product.request.ProductCreateServiceRequest;
 import sample.cafekiosk.domain.product.Product;
 import sample.cafekiosk.domain.product.ProductSellingStatus;
 import sample.cafekiosk.domain.product.ProductType;
@@ -36,14 +38,12 @@ public class ProductCreateRequest {
         this.price = price;
     }
 
-    public Product toEntity(String nextProductNumber) {
-        return Product.builder()
-                .productNumber(nextProductNumber)
+    public ProductCreateServiceRequest toServiceRequest() {
+        return ProductCreateServiceRequest.builder()
                 .type(type)
                 .sellingStatus(sellingStatus)
                 .name(name)
                 .price(price)
                 .build();
-
     }
 }
