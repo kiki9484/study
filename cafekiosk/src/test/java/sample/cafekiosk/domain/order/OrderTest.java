@@ -4,14 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import sample.cafekiosk.domain.product.Product;
-import sample.cafekiosk.domain.product.ProductSellingStatus;
-import sample.cafekiosk.domain.product.ProductType;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static sample.cafekiosk.domain.order.OrderStatus.*;
 import static sample.cafekiosk.domain.product.ProductSellingStatus.SELLING;
 import static sample.cafekiosk.domain.product.ProductType.HANDMADE;
@@ -29,7 +26,7 @@ class OrderTest {
         );
 
         // when
-        Order order = Order.createOrder(products, registeredDateTime);
+        Order order = Order.create(products, registeredDateTime);
 
         // then
         assertThat(order.getOrderStatus()).isEqualTo(INIT);
@@ -46,7 +43,7 @@ class OrderTest {
         );
 
         // when
-        Order order = Order.createOrder(products, registeredDateTime);
+        Order order = Order.create(products, registeredDateTime);
 
         // then
         assertThat(order.getTotalPrice()).isEqualTo(3000);
@@ -63,7 +60,7 @@ class OrderTest {
         );
 
         // when
-        Order order = Order.createOrder(products, registeredDateTime);
+        Order order = Order.create(products, registeredDateTime);
 
         // then
         assertThat(order.getRegisteredDateTime()).isEqualTo(registeredDateTime);
