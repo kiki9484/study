@@ -23,7 +23,6 @@ import static sample.cafekiosk.domain.product.ProductSellingStatus.*;
 import static sample.cafekiosk.domain.product.ProductType.*;
 
 @ActiveProfiles("test")
-//@Transactional
 @SpringBootTest
 class OrderServiceTest {
     @Autowired private OrderService orderService;

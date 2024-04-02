@@ -3,10 +3,12 @@ package sample.cafekiosk.domain.stock;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.*;
 
 
+@ActiveProfiles("test")
 class StockTest {
     @DisplayName("재고의 수량이 제공된 수량보다 적은지 확인한다.")
     @Test

@@ -1,13 +1,12 @@
 package sample.cafekiosk.api.service.product;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import sample.cafekiosk.api.controller.product.dto.request.ProductCreateRequest;
+import sample.cafekiosk.api.service.product.request.ProductCreateServiceRequest;
 import sample.cafekiosk.api.service.product.response.ProductResponse;
 import sample.cafekiosk.domain.product.Product;
 import sample.cafekiosk.domain.product.ProductRepository;
@@ -26,6 +25,11 @@ class ProductServiceTest {
     @Autowired private ProductService productService;
     @Autowired private ProductRepository productRepository;
 
+//    @BeforeEach
+//    void setUp() {
+//        productRepository.deleteAllInBatch();
+//    }
+
     @AfterEach
     void tearDown() {
         productRepository.deleteAllInBatch();
@@ -37,7 +41,8 @@ class ProductServiceTest {
         // given
         Product product = createProduct("001", HANDMADE, SELLING, "아메리카노", 4000);
         productRepository.save(product);
-        ProductCreateRequest request = ProductCreateRequest.builder()
+
+        ProductCreateServiceRequest request = ProductCreateServiceRequest.builder()
                 .type(HANDMADE)
                 .sellingStatus(SELLING)
                 .name("카푸치노")
@@ -45,9 +50,13 @@ class ProductServiceTest {
                 .build();
 
         // when
-        ProductResponse productResponse = productService.createProduct(request.toServiceRequest());
+        ProductResponse productResponse = productService.createProduct(request);
 
         // then
+        System.out.println("=========");
+        productRepository.findAll().forEach(System.out::println);
+        System.out.println("=========");
+
         List<Product> products = productRepository.findAll();
         assertThat(products).hasSize(2)
                 .extracting("productNumber", "type", "sellingStatus", "name", "price")
@@ -66,7 +75,7 @@ class ProductServiceTest {
     @Test
     void createProductWhenProductIsEmpty() {
         // given
-        ProductCreateRequest request = ProductCreateRequest.builder()
+        ProductCreateServiceRequest request = ProductCreateServiceRequest.builder()
                 .type(HANDMADE)
                 .sellingStatus(SELLING)
                 .name("카푸치노")
@@ -74,14 +83,17 @@ class ProductServiceTest {
                 .build();
 
         // when
-        ProductResponse productResponse = productService.createProduct(request.toServiceRequest());
+        ProductResponse productResponse = productService.createProduct(request);
 
         // then
+        System.out.println("=========");
+        productRepository.findAll().forEach(System.out::println);
+        System.out.println("=========");
+
         List<Product> products = productRepository.findAll();
         assertThat(products).hasSize(1)
                 .extracting("productNumber", "type", "sellingStatus", "name", "price")
                 .contains(tuple("001", HANDMADE, SELLING, "카푸치노", 5000));
-
 
         assertThat(productResponse)
                 .extracting("productNumber", "type", "sellingStatus", "name", "price")
