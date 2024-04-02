@@ -1,5 +1,6 @@
 package sample.cafekiosk.domain.product;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,14 @@ import static sample.cafekiosk.domain.product.ProductSellingStatus.*;
 import static sample.cafekiosk.domain.product.ProductType.HANDMADE;
 
 @ActiveProfiles("test")
-@DataJpaTest
+@SpringBootTest
 class ProductRepositoryTest {
     @Autowired private ProductRepository productRepository;
+
+    @AfterEach
+    void tearDown() {
+        productRepository.deleteAllInBatch();
+    }
 
     @DisplayName("원하는 판매상태를 가진 상품들을 조회한다.")
     @Test
