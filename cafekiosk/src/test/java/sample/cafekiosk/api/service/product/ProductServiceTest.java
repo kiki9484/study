@@ -4,6 +4,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+import sample.cafekiosk.IntegrationTestSupport;
 import sample.cafekiosk.api.service.product.request.ProductCreateServiceRequest;
 import sample.cafekiosk.api.service.product.response.ProductResponse;
 import sample.cafekiosk.domain.product.Product;
@@ -17,9 +19,8 @@ import static org.assertj.core.api.Assertions.*;
 import static sample.cafekiosk.domain.product.ProductSellingStatus.*;
 import static sample.cafekiosk.domain.product.ProductType.HANDMADE;
 
-@ActiveProfiles("test")
-@SpringBootTest
-class ProductServiceTest {
+@Transactional
+class ProductServiceTest extends IntegrationTestSupport {
     @Autowired private ProductService productService;
     @Autowired private ProductRepository productRepository;
 
@@ -52,10 +53,6 @@ class ProductServiceTest {
         ProductResponse productResponse = productService.createProduct(request);
 
         // then
-        System.out.println("=========");
-        productRepository.findAll().forEach(System.out::println);
-        System.out.println("=========");
-
         List<Product> products = productRepository.findAll();
         assertThat(products).hasSize(2)
                 .extracting("productNumber", "type", "sellingStatus", "name", "price")
@@ -85,10 +82,6 @@ class ProductServiceTest {
         ProductResponse productResponse = productService.createProduct(request);
 
         // then
-        System.out.println("=========");
-        productRepository.findAll().forEach(System.out::println);
-        System.out.println("=========");
-
         List<Product> products = productRepository.findAll();
         assertThat(products).hasSize(1)
                 .extracting("productNumber", "type", "sellingStatus", "name", "price")

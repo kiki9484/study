@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import sample.cafekiosk.ControllerTestSupport;
 import sample.cafekiosk.api.controller.product.dto.request.ProductCreateRequest;
 import sample.cafekiosk.api.service.order.OrderService;
 import sample.cafekiosk.api.service.product.ProductService;
@@ -24,18 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static sample.cafekiosk.domain.product.ProductSellingStatus.SELLING;
 import static sample.cafekiosk.domain.product.ProductType.HANDMADE;
 
-@ActiveProfiles("test")
-@WebMvcTest(controllers = OrderController.class)
-class OrderControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private OrderService orderService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
+class OrderControllerTest extends ControllerTestSupport {
     @DisplayName("신규 주문을 등록한다.")
     @Test
     void createOrder() throws Exception {
