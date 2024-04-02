@@ -2,6 +2,7 @@ package sample.cafekiosk.api.service.order;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sample.cafekiosk.api.service.mail.MailService;
 import sample.cafekiosk.domain.order.Order;
 import sample.cafekiosk.domain.order.OrderRepository;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+// @Transactional // 통계 서비스에서는 안하는 것이 좋다.
 public class OrderStatisticsService {
     private final OrderRepository orderRepository;
     private final MailService mailService;
