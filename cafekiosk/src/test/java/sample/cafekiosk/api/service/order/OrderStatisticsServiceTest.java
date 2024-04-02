@@ -40,7 +40,8 @@ class OrderStatisticsServiceTest {
     private ProductRepository productRepository;
     @Autowired
     private MailSendHistoryRepository mailSendHistoryRepository;
-    @MockBean private MailSendClient mailSendClient;
+    @MockBean
+    private MailSendClient mailSendClient;
 
     @AfterEach
     void tearDown() {
@@ -67,7 +68,7 @@ class OrderStatisticsServiceTest {
         createPaymentCompletedOrder(LocalDateTime.of(2024, 3, 5, 23, 59, 59), products);
         createPaymentCompletedOrder(LocalDateTime.of(2024, 3, 6, 0, 0), products);
 
-        // Mock 객체의 행위 정의
+        // stubbing
         when(mailSendClient.sendEmail(any(String.class), any(String.class), any(String.class), any(String.class)))
                 .thenReturn(true);
 
