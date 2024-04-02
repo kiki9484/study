@@ -13,26 +13,21 @@ import sample.cafekiosk.domain.history.mail.MailSendHistory;
 import sample.cafekiosk.domain.history.mail.MailSendHistoryRepository;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class MailServiceTest {
-    @Mock
-    private MailSendClient mailSendClient;
-    @Mock
-    private MailSendHistoryRepository mailSendHistoryRepository;
-    @InjectMocks
-    private MailService mailService;
+    @Mock private MailSendClient mailSendClient;
+    @Mock private MailSendHistoryRepository mailSendHistoryRepository;
+    @InjectMocks private MailService mailService;
 
     @DisplayName("메일 전송 테스트")
     @Test
     void sendMail() {
         // given
-        Mockito.when(mailSendClient.sendEmail(anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(true);
-
-        BDDMockito.given(mailSendClient.sendEmail(anyString(), anyString(), anyString(), anyString()))
+        given(mailSendClient.sendEmail(anyString(), anyString(), anyString(), anyString()))
                 .willReturn(true);
 
         // when
