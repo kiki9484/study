@@ -23,7 +23,7 @@ import static sample.cafekiosk.domain.product.ProductType.HANDMADE;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-
+    private final ProductNumberFactory productNumberFactory;
     // 조회를 했을 경우 [SELLING, HOLD] 제품만 가져온다.
     public List<ProductResponse> getSellingProducts() {
         List<Product> products = productRepository.findAllBySellingStatusIn(forDisplay());
@@ -35,20 +35,11 @@ public class ProductService {
     @Transactional
     public ProductResponse createProduct(ProductCreateServiceRequest request) {
         // productNumber 부여하기 -> DB에서 마지막 저장된 Product의 상품 번호를 읽어와서 +1
-        String nextProductNumber = createNextProductNumber();
+        String nextProductNumber = productNumberFactory.createNextProductNumber();
 
         Product product = request.toEntity(nextProductNumber);
         Product savedProduct = productRepository.save(product);
 
         return ProductResponse.of(savedProduct);
-    }
-
-    private String createNextProductNumber() {
-        String latestProductNumber = productRepository.findLatestProductNumber();
-        if(latestProductNumber == null) return "001";
-
-        int latestProductNumberInt = Integer.parseInt(latestProductNumber);
-        int nextProductNumberInt = latestProductNumberInt + 1;
-        return String.format("%03d", nextProductNumberInt);
     }
 }
