@@ -91,7 +91,7 @@ response.addCookie(idCookie);
 
 #### 세션 생성: `request.getSession(true)` 사용
 ```java
-public HttpSession getSession(boolean create);ㄴ
+public HttpSession getSession(boolean create);
 ```
   
 <br>
