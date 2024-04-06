@@ -19,6 +19,7 @@ import static java.util.stream.Collectors.*;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductNumberFactory productNumberFactory;
+
     // 조회를 했을 경우 [SELLING, HOLD] 제품만 가져온다.
     public List<ProductResponse> getSellingProducts() {
         List<Product> products = productRepository.findAllBySellingStatusIn(ProductSellingStatus.forDisplay());
