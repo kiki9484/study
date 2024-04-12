@@ -173,20 +173,20 @@ class MemberRepositoryTest {
         assertThat(page.hasNext()).isTrue();
     }
 
-//    @Test
-//    void bulkUpdate() {
-//        memberRepository.save(new Member("member1", 10));
-//        memberRepository.save(new Member("member2", 19));
-//        memberRepository.save(new Member("member3", 20));
-//        memberRepository.save(new Member("member4", 21));
-//        memberRepository.save(new Member("member5", 40));
-//
-//        int resultCount = memberRepository.bulkAgePlus(20);
-//
-//        assertThat(resultCount).isEqualTo(3);
-//    }
     @Test
-    void bulkUpdate() {
+    void bulkUpdate1() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        int resultCount = memberRepository.bulkAgePlus(20);
+
+        assertThat(resultCount).isEqualTo(3);
+    }
+    @Test
+    void bulkUpdate2() {
         memberRepository.save(new Member("member", 40));
 
         int resultCount = memberRepository.bulkAgePlus(20);
@@ -194,5 +194,58 @@ class MemberRepositoryTest {
         Member member = memberRepository.findByUsername("member");
 
         assertThat(member.getAge()).isEqualTo(41);
+    }
+
+    @Test
+    void findMemberLazy() {
+        // given
+        // member1 -> teamA
+        // member2 -> teamB
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<Member> members = memberRepository.findAll();
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    void queryHint() {
+        Member member = new Member("member1", 10);
+        memberRepository.save(member);
+        // flush(), clear() : 영속성 컨텍스트의 1차 캐시를 없애서 db에서 다시 데이터를 조회하게 한다.
+        em.flush();
+        em.clear();
+
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("changed_member");
+
+        em.flush(); // 영속성 컨텍스트의 변경 내용을 DB에 반영한다.
+    }
+
+    @Test
+    void lock() {
+        Member member = new Member("member1", 10);
+        memberRepository.save(member);
+        em.flush();
+        em.clear();
+
+        memberRepository.findLockByUsername("member1");
     }
 }
